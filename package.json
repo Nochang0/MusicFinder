@@ -1,0 +1,47 @@
+{
+    "name": "musicfinder",
+    "version": "1.0.0",
+    "description": "금영 & TJ 노래방 통합 검색 및 저장, 신청 프로젝트",
+    "main": "app.js",
+    "scripts": {
+        "test": "node main.js",
+        "build": "tsc --build",
+        "clean": "tsc --build --clean",
+        "start": "ts-node main.ts",
+        "github": "clear && git add . && git commit -m 'make it better' && git push origin main"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/axios": "^0.14.0",
+        "@types/bson": "^4.2.0",
+        "@types/cheerio": "^0.22.35",
+        "@types/cookie-parser": "^1.4.6",
+        "@types/cors": "^2.8.17",
+        "@types/dotenv": "^8.2.0",
+        "@types/express": "^4.17.21",
+        "@types/morgan": "^1.9.9",
+        "@types/serve-favicon": "^2.5.7",
+        "axios": "^1.6.2",
+        "bson": "^6.2.0",
+        "cheerio": "^1.0.0-rc.12",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "moment-timezone": "^0.5.43",
+        "morgan": "^1.10.0",
+        "mysql2": "^3.6.5",
+        "pm2": "^5.3.0",
+        "puppeteer": "^21.6.1",
+        "sequelize": "^6.35.1",
+        "sequelize-cli": "^6.6.2",
+        "serve-favicon": "^2.5.0",
+        "typescript": "^5.5.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.0",
+        "nodemon": "^3.0.2",
+        "ts-node": "^10.9.2"
+    }
+}
