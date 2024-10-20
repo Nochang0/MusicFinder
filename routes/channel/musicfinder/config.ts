@@ -2,7 +2,7 @@
 
 // 고정 변수
 const Channel_Search_Id: string = "musicfinder";
-const MyUrl: string = "http://3.38.74.170:3000";
+const MyUrl: string = "http://musicfinder.o-r.kr:3010";
 const channel_profile_id: string = "421451751";
 
 // 가변 변수
