@@ -46,7 +46,6 @@ class Handler {
 			fs.writeFileSync(Handler.AllDBPath, JSON.stringify(allDB, null, 2), 'utf-8');
 			return true;
 		} catch (e) {
-			console.log('2');
 			console.log(String(e));
 			return false;
 		}
@@ -69,7 +68,6 @@ class Handler {
 			Handler.saveDB(simpleDB as IdInfoForm, allDB as AllInfoForm);						// 파일 업데이트 (저장)
 			return true;
 		} catch (e) {
-			console.log('1');
 			console.log(String(e));
 			return false;
 		}

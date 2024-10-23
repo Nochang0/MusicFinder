@@ -86,6 +86,7 @@ async function getToken(): Promise <string | false> {
 // 카톡 채널DB 유저추가
 async function AddUser(plusId: string): Promise <boolean> {
 	let username: string = '';		// 유저이름
+	let guestUserId: string = '';	// 가입자 UserId
 	
 	// 채널 유저목록 가져오기
 	const getUserList: TypeManager.KC_userTypes.Inside_UserList[] | boolean = await KAKAO.KakaoRocket.User.UserList(Config.kakao_access_token, Config.channel_profile_id, "not-read");
@@ -93,7 +94,7 @@ async function AddUser(plusId: string): Promise <boolean> {
 	// 잘 가져왔는지 검사
 	if (typeof getUserList === 'boolean') return false;
 	
-	// plusId 채팅내역 찾기
+	// plusId 채팅내역 찾기 (함수)
 	const findUserInfo = async (): Promise <TypeManager.KC_userTypes.Inside_UserList | false> => {
 		for (const user of getUserList) {
 			const LastSeenlogId: string = user.last_seen_log_id;    // 대화 내역 Id (시작)
@@ -120,11 +121,6 @@ async function AddUser(plusId: string): Promise <boolean> {
 	};
 
 
-	// console.log(String((findUserInfo as TypeManager.KC_userTypes.Inside_UserList).id));
-	// 비동기 리턴값에서 출력이 되는지 테스트 (추후 삭제예정)
-	console.log(String(findUserInfo as TypeManager.KC_userTypes.Inside_UserList));
-
-
 	// DB 함수로 보낼 sendInfo(유저 데이터) 설정
 	const getSendInfo = async (plusId: string): Promise <AllInfoForm | false> => {
 		const userInfo = await findUserInfo(); // 비동기 함수 호출
@@ -132,8 +128,11 @@ async function AddUser(plusId: string): Promise <boolean> {
 		// 저장할 유저를 확인하지 못했을 때
 		if (typeof userInfo === "boolean") return false;
 
+		// 가입자 UserId (가입 성공 알림 목적)
+		guestUserId = userInfo.talk_user.id;
+
 		// DB 저장할 유저 데이터 세팅
-		let sendInfo: AllInfoForm = {
+		const sendInfo: AllInfoForm = {
 			[plusId]: {
 				nickname: userInfo.talk_user.nickname,
 				userId: userInfo.talk_user.id,
@@ -154,7 +153,7 @@ async function AddUser(plusId: string): Promise <boolean> {
 	if (!saveUser) return false;
 	
 	// 가입성공 메세지 보내기 (관리자)
-	const CustomChat: boolean = await KAKAO.KakaoRocket.Chat.sendRaw(Config.kakao_access_token, plusId, (findUserInfo as TypeManager.KC_userTypes.Inside_UserList).id, 1, `${username}님 가입완료되었습니다.`);
+	const CustomChat: boolean = await KAKAO.KakaoRocket.Chat.sendRaw(Config.kakao_access_token, plusId, guestUserId, 1, `${username}님 가입완료되었습니다.`);
 	if (CustomChat === false) return false;
 	
 	return true;
