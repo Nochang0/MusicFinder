@@ -61,6 +61,7 @@ class Chat {
             });
             return true;
         } catch (e: any) {
+			console.log(String(e));
             if (e.response.data?.message === 'Unauthorized') return false;
             return false;
         }

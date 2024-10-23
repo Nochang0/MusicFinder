@@ -86,7 +86,7 @@ async function getToken(): Promise <string | false> {
 // 카톡 채널DB 유저추가
 async function AddUser(plusId: string): Promise <boolean> {
 	let username: string = '';		// 유저이름
-	let guestUserId: string = '';	// 가입자 UserId
+	let guestId: string = '';		// 가입자 roomId
 	
 	// 채널 유저목록 가져오기
 	const getUserList: TypeManager.KC_userTypes.Inside_UserList[] | boolean = await KAKAO.KakaoRocket.User.UserList(Config.kakao_access_token, Config.channel_profile_id, "not-read");
@@ -128,8 +128,8 @@ async function AddUser(plusId: string): Promise <boolean> {
 		// 저장할 유저를 확인하지 못했을 때
 		if (typeof userInfo === "boolean") return false;
 
-		// 가입자 UserId (가입 성공 알림 목적)
-		guestUserId = userInfo.talk_user.id;
+		// 가입자 roomId (가입 성공 알림 목적)
+		guestId = userInfo.id;
 
 		// DB 저장할 유저 데이터 세팅
 		const sendInfo: AllInfoForm = {
@@ -140,7 +140,6 @@ async function AddUser(plusId: string): Promise <boolean> {
 			}
 		};
 
-		console.log(sendInfo);
 		return sendInfo;
 	};
 
@@ -152,8 +151,11 @@ async function AddUser(plusId: string): Promise <boolean> {
 	const saveUser: boolean = DBManager.LocalDB.Handler.addUser(plusId, SendInfoData);
 	if (!saveUser) return false;
 	
+	console.log(guestId);
+	console.log(Config.kakao_access_token);
+	
 	// 가입성공 메세지 보내기 (관리자)
-	const CustomChat: boolean = await KAKAO.KakaoRocket.Chat.sendRaw(Config.kakao_access_token, plusId, guestUserId, 1, `${username}님 가입완료되었습니다.`);
+	const CustomChat: boolean = await KAKAO.KakaoRocket.Chat.sendRaw(Config.kakao_access_token, Config.channel_profile_id, guestId, 1, `${username}님 가입완료되었습니다.`);
 	if (CustomChat === false) return false;
 	
 	return true;
