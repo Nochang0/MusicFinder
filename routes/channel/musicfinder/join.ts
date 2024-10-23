@@ -63,7 +63,6 @@ router.post('/SignUp', async (req: Request, res: Response) => {
 	// 유저 인증 메세지 전송하게 시키기
 	res.redirect(certifyTalkUrl);
 
-	console.log('1');
 	// 유저 추가
 	AddUser(qd.plusId as string);
 	
@@ -168,6 +167,8 @@ Emitter.on('setting', async () => {
 
 	// 로그인 성공 여부 확인 (안되면 바로 종료)
 	if (!KC_Token) return process.exit(0);
+
+	// 로그인 엑세스 토큰 저장
 	Config.kakao_access_token = KC_Token;
 
 	console.log("카카오톡 채널관리자 토큰: ", KC_Token);
