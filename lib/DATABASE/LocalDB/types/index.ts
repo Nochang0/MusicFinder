@@ -1,3 +1,2 @@
-export * from './student-type.ts';
-export * from './merge-type.ts';
-export * from './kakao-type.ts';
+export * from './user-info-type.ts';
+export * from './simple-id-type.ts';

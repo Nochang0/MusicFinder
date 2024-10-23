@@ -1,8 +1,8 @@
 import * as fs from 'fs';
-import kakao from './kakao/kakao.ts';
+import Handler from './handler/handler.ts';
 
 class LocalDB {
-	static kakao = kakao;
+	static Handler = Handler;
 }
 
 export default LocalDB;

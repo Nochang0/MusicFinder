@@ -1,5 +1,6 @@
 // By KakaoQuickList.json
 
-export interface Kakao_UserForm {
+// 단순 id 저장 양식
+export interface IdInfoForm {
 	[plusId: string]: string;	// { plusId: roomId }
 }

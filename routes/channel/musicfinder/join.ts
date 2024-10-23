@@ -26,6 +26,14 @@ router.use(bodyParser.urlencoded({ extended: true }));
 const Emitter = new EventEmitter();
 if (Config.kakao_access_token === '') Emitter.emit('setting');
 
+// 임시 데이터 타입 설정
+interface AllInfoForm {
+	[plusId: string]: {
+		nickname: string;
+		userId: string;
+		roomId: string;
+	}
+}
 
 // 가입 메세지 전송
 router.post('/SignUp', async (req: Request, res: Response) => {
@@ -45,7 +53,8 @@ router.post('/SignUp', async (req: Request, res: Response) => {
 // 채널 유저 인증 메세지 전송받기 및 유저 확인
  router.get('/Certify', async (req: Request, res: Response) => {
 	const qd = url.parse(req.url, true).query;	// 파라미터
-	
+
+	// 테스트 용도 로그인
 	Emitter.emit('setting');
 	
 	// 인증메세지 보내기 링크 (유저)
@@ -54,8 +63,8 @@ router.post('/SignUp', async (req: Request, res: Response) => {
 	// 유저 인증 메세지 전송하게 시키기
 	res.redirect(certifyTalkUrl);
 
-	// 테스트
-	console.log(Config.kakao_access_token);
+	console.log('1');
+	// 유저 추가
 	AddUser(qd.plusId as string);
 	
 	/* DB로 plusId 확인, 없으면 채널 목록(닉네임, notread)->대화내역(forward) 없으면 없다고 res.json (시간 지나 못 보낼땐 챗봇 파라미터 문서로 관련 대응 기능 찾아보기) */
@@ -67,8 +76,11 @@ router.post('/SignUp', async (req: Request, res: Response) => {
 async function getToken(): Promise <string | false> {
 	// 카카오톡 채널 관리자 앱 로그인 => 엑세스 토큰 가져오기
 	const AccessToken: string | boolean = await KAKAO.KakaoRocket.Client.Login(Config.kakao_refresh_token);
+	
+	// 로그인 성공 여부 감지
 	if (typeof AccessToken === 'boolean') return false;
 	Config.kakao_access_token = AccessToken;
+
 	return AccessToken;
 }
 
@@ -78,6 +90,8 @@ async function AddUser(plusId: string): Promise <boolean> {
 	
 	// 채널 유저목록 가져오기
 	const getUserList: TypeManager.KC_userTypes.Inside_UserList[] | boolean = await KAKAO.KakaoRocket.User.UserList(Config.kakao_access_token, Config.channel_profile_id, "not-read");
+
+	// 잘 가져왔는지 검사
 	if (typeof getUserList === 'boolean') return false;
 	
 	// plusId 채팅내역 찾기
@@ -105,12 +119,39 @@ async function AddUser(plusId: string): Promise <boolean> {
 		// 유저를 찾지 못했을 때 false 반환
 		return false;
 	};
-	
-	// plusId 채팅내역을 못 찾았을 때
-	if (typeof findUserInfo === "boolean") return false;
+
+
+	// console.log(String((findUserInfo as TypeManager.KC_userTypes.Inside_UserList).id));
+	// 비동기 리턴값에서 출력이 되는지 테스트 (추후 삭제예정)
+	console.log(String(findUserInfo as TypeManager.KC_userTypes.Inside_UserList));
+
+
+	// DB 함수로 보낼 sendInfo(유저 데이터) 설정
+	const getSendInfo = async (plusId: string): Promise <AllInfoForm | false> => {
+		const userInfo = await findUserInfo(); // 비동기 함수 호출
+
+		// 저장할 유저를 확인하지 못했을 때
+		if (typeof userInfo === "boolean") return false;
+
+		// DB 저장할 유저 데이터 세팅
+		let sendInfo: AllInfoForm = {
+			[plusId]: {
+				nickname: userInfo.talk_user.nickname,
+				userId: userInfo.talk_user.id,
+				roomId: userInfo.id
+			}
+		};
+
+		console.log(sendInfo);
+		return sendInfo;
+	};
+
+	// 세팅된 유저 JSON
+	const SendInfoData: AllInfoForm | false = await getSendInfo(plusId);
+	if (typeof SendInfoData === "boolean") return false;
 
 	// DB 저장
-	const saveUser: boolean = DBManager.LocalDB.kakao.addUser(plusId, (findUserInfo as TypeManager.KC_userTypes.Inside_UserList).id);
+	const saveUser: boolean = DBManager.LocalDB.Handler.addUser(plusId, SendInfoData);
 	if (!saveUser) return false;
 	
 	// 가입성공 메세지 보내기 (관리자)
@@ -124,8 +165,11 @@ async function AddUser(plusId: string): Promise <boolean> {
 // 카톡 채널관리자 토큰 발급 이벤트
 Emitter.on('setting', async () => {
 	const KC_Token: string | false = await getToken();
+
+	// 로그인 성공 여부 확인 (안되면 바로 종료)
 	if (!KC_Token) return process.exit(0);
 	Config.kakao_access_token = KC_Token;
+
 	console.log("카카오톡 채널관리자 토큰: ", KC_Token);
 });
 

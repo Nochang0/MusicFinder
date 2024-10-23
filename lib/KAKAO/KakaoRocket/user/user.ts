@@ -54,6 +54,8 @@ class User {
 					"status": status
 				}
 			});
+
+			console.log(data);
 			
 			// 채널 유저목록 저장 리스트
         	const userList: Inside_UserList[] = data.items;
@@ -81,6 +83,7 @@ class User {
             }
             return userList;
         } catch (e: any) {
+			console.log(e);
 			// token 에러 (유효기간 지남(예상) | 옳지 않은 토큰)
 			if (e.response.data?.message == 'Unauthorized') return false;
 			return false;
