@@ -1,3 +1,1 @@
-git add ../.
-git commit -m "make it better"
-git push origin main
+git add ../. && git commit -m "make it better" && git push origin main

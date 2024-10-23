@@ -150,10 +150,7 @@ async function AddUser(plusId: string): Promise <boolean> {
 	// DB 저장
 	const saveUser: boolean = DBManager.LocalDB.Handler.addUser(plusId, SendInfoData);
 	if (!saveUser) return false;
-	
-	console.log(guestId);
-	console.log(Config.kakao_access_token);
-	
+
 	// 가입성공 메세지 보내기 (관리자)
 	const CustomChat: boolean = await KAKAO.KakaoRocket.Chat.sendRaw(Config.kakao_access_token, Config.channel_profile_id, guestId, 1, `${username}님 가입완료되었습니다.`);
 	if (CustomChat === false) return false;
